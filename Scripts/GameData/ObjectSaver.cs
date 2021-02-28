@@ -11,79 +11,62 @@ namespace Saver
             JSON, PlayerPrefab
         }
 
-        public static T LoadObject<T>(SaveType saveType = SaveType.JSON)
+        public static bool LoadObject<TObject>(ref TObject objectSaving, SaveType saveType = SaveType.JSON)
         {
-            if (!CheckObjectExist<T>(saveType))
-                return default(T);
-
-            string contents = (saveType == SaveType.JSON) ? File.ReadAllText(GetSavingPath<T>()) : PlayerPrefs.GetString(typeof(T).ToString());
+            string contents = (saveType == SaveType.JSON) ? File.ReadAllText(GetSavingPathFile<TObject>()) : PlayerPrefs.GetString(typeof(TObject).ToString());
 
             try
             {
-                return JsonUtility.FromJson<T>(contents);
+                JsonUtility.FromJsonOverwrite(contents, objectSaving);
+                return true;
             }
             catch (Exception e)
             {
                 Debug.LogWarning("Error: " + e.Message);
             }
 
-            return default(T);
+            return false;
         }
 
-        /*
-        public static void ModifyObject<T>(T currentObject, SaveType saveType = SaveType.JSON)
+        public static bool SaveObject<TObject>(TObject currentObject, SaveType saveType = SaveType.JSON)
         {
-            string filePath = GetSavingPath<T>();
-
-            try
-            {
-                string contents = JsonUtility.ToJson(currentObject);
-                if (saveType == SaveType.JSON)
-                    File.WriteAllText(filePath, contents);
-                else
-                    PlayerPrefs.SetString(typeof(T).ToString(), contents);
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning("Error: " + e.Message);
-            }
-        }
-        */
-
-        public static void SaveObject<T>(T currentObject, SaveType saveType = SaveType.JSON)
-        {
-
             try
             {
                 string contents = JsonUtility.ToJson(currentObject);
                 if (saveType == SaveType.JSON)
                 {
-                    File.WriteAllText(GetSavingPath<T>(), contents);
+                    File.WriteAllText(GetSavingPathFile<TObject>(), contents);
+                    return true;
                 }
                 else
-                    PlayerPrefs.SetString(typeof(T).ToString(), contents);
+                {
+                    PlayerPrefs.SetString(typeof(TObject).ToString(), contents);
+                    return true;
+                }
             }
             catch (Exception e)
             {
                 Debug.LogWarning("Error: " + e.Message);
             }
+
+            return false;
         }
 
-        public static bool DeleteObject<T>(SaveType saveType = SaveType.JSON)
+        public static bool DeleteObject<TObject>(SaveType saveType = SaveType.JSON)
         {
-            if (!CheckObjectExist<T>(saveType))
+            if (!ObjectExist<TObject>(saveType))
                 return false;
 
             try
             {
                 if (saveType == SaveType.JSON)
                 {
-                    File.Delete(GetSavingPath<T>());
+                    File.Delete(GetSavingPathFile<TObject>());
                     return true;
                 }
                 else
                 {
-                    PlayerPrefs.DeleteKey(typeof(T).ToString());
+                    PlayerPrefs.DeleteKey(typeof(TObject).ToString());
                     return true;
                 }
 
@@ -96,20 +79,18 @@ namespace Saver
             return false;
         }
 
-        public static bool CheckObjectExist<T>(SaveType saveType = SaveType.JSON)
+        public static bool ObjectExist<TObject>(SaveType saveType = SaveType.JSON)
         {
             if (saveType == SaveType.JSON)
             {
-                string filePath = GetSavingPath<T>();
-
-                if (File.Exists(GetSavingPath<T>()))
+                if (File.Exists(GetSavingPathFile<TObject>()))
                 {
                     return true;
                 }
             }
             else
             {
-                if (PlayerPrefs.HasKey(typeof(T).ToString()))
+                if (PlayerPrefs.HasKey(typeof(TObject).ToString()))
                 {
                     return true;
                 }
@@ -118,9 +99,31 @@ namespace Saver
             return false;
         }
 
-        public static string GetSavingPath<T>()
+        public static string GetSavingPathFile<TObject>()
         {
-            return Application.persistentDataPath + typeof(T).ToString() + ".json";
+            return Application.persistentDataPath + "/" + typeof(TObject).ToString() + ".json";
         }
+
+        public static string GetSavingPathDirectory()
+        {
+            return Application.persistentDataPath + "/";
+        }
+
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("Edit/Clear Json Files", false, 266)]
+        public static void ClearAllFiles()
+        {
+            string directoryPath = GetSavingPathDirectory();
+            if (Directory.Exists(directoryPath))
+            {
+                foreach (string file in Directory.GetFiles(directoryPath))
+                {
+                    File.Delete(file);
+                }
+            }
+
+            Debug.Log("All Files Deleted path is: " + directoryPath);
+        }
+#endif
     }
 }

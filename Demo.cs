@@ -4,17 +4,14 @@ using UnityEngine.SceneManagement;
 
 public class Demo : MonoBehaviour
 {
+
+    [SerializeField]
+    private Product product;
+
     private void Start()
     {
-        Product pro = new Product();
-        ObjectSaver.SaveObject(pro);
-        pro.age = 0;
-        Debug.Log("Before: " + pro.age);
-        pro = ObjectSaver.LoadObject<Product>();
-        Debug.Log("After Load: " + pro.age);
-        ObjectSaver.DeleteObject<Product>();
-        Debug.Log("CheckObject: " + ObjectSaver.CheckObjectExist<Product>());
-
+        print(Application.persistentDataPath);
+        ObjectSaver.LoadObject(ref product);
     }
 
     public void GoScene(string nameScene)
