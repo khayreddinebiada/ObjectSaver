@@ -11,9 +11,9 @@ namespace Saver
             JSON, PlayerPrefab
         }
 
-        public static bool LoadObject<TObject>(ref TObject objectSaving, SaveType saveType = SaveType.JSON)
+        public static bool LoadObject<TObject>(ref TObject objectSaving, string savingId, SaveType saveType = SaveType.JSON)
         {
-            string contents = (saveType == SaveType.JSON) ? File.ReadAllText(GetSavingPathFile<TObject>()) : PlayerPrefs.GetString(typeof(TObject).ToString());
+            string contents = (saveType == SaveType.JSON) ? File.ReadAllText(GetSavingPathFile<TObject>(savingId)) : PlayerPrefs.GetString(typeof(TObject).ToString() + savingId);
 
             try
             {
@@ -28,19 +28,19 @@ namespace Saver
             return false;
         }
 
-        public static bool SaveObject<TObject>(TObject currentObject, SaveType saveType = SaveType.JSON)
+        public static bool SaveObject<TObject>(TObject currentObject, string savingId, SaveType saveType = SaveType.JSON)
         {
             try
             {
                 string contents = JsonUtility.ToJson(currentObject);
                 if (saveType == SaveType.JSON)
                 {
-                    File.WriteAllText(GetSavingPathFile<TObject>(), contents);
+                    File.WriteAllText(GetSavingPathFile<TObject>(savingId), contents);
                     return true;
                 }
                 else
                 {
-                    PlayerPrefs.SetString(typeof(TObject).ToString(), contents);
+                    PlayerPrefs.SetString(typeof(TObject).ToString() + savingId, contents);
                     return true;
                 }
             }
@@ -52,21 +52,21 @@ namespace Saver
             return false;
         }
 
-        public static bool DeleteObject<TObject>(SaveType saveType = SaveType.JSON)
+        public static bool DeleteObject<TObject>(string savingId, SaveType saveType = SaveType.JSON)
         {
-            if (!ObjectExist<TObject>(saveType))
+            if (!ObjectExist<TObject>(savingId, saveType))
                 return false;
 
             try
             {
                 if (saveType == SaveType.JSON)
                 {
-                    File.Delete(GetSavingPathFile<TObject>());
+                    File.Delete(GetSavingPathFile<TObject>(savingId));
                     return true;
                 }
                 else
                 {
-                    PlayerPrefs.DeleteKey(typeof(TObject).ToString());
+                    PlayerPrefs.DeleteKey(typeof(TObject).ToString() + savingId);
                     return true;
                 }
 
@@ -79,18 +79,18 @@ namespace Saver
             return false;
         }
 
-        public static bool ObjectExist<TObject>(SaveType saveType = SaveType.JSON)
+        public static bool ObjectExist<TObject>(string savingId, SaveType saveType = SaveType.JSON)
         {
             if (saveType == SaveType.JSON)
             {
-                if (File.Exists(GetSavingPathFile<TObject>()))
+                if (File.Exists(GetSavingPathFile<TObject>(savingId)))
                 {
                     return true;
                 }
             }
             else
             {
-                if (PlayerPrefs.HasKey(typeof(TObject).ToString()))
+                if (PlayerPrefs.HasKey(typeof(TObject).ToString() + savingId))
                 {
                     return true;
                 }
@@ -99,18 +99,21 @@ namespace Saver
             return false;
         }
 
-        public static string GetSavingPathFile<TObject>()
+        public static string GetSavingPathFile<TObject>(string savingId)
         {
-            return Application.persistentDataPath + "/" + typeof(TObject).ToString() + ".json";
+            if (!Directory.Exists(Application.persistentDataPath + "/data/"))
+                Directory.CreateDirectory(Application.persistentDataPath + "/data/");
+
+            return Application.persistentDataPath + "/data/" + typeof(TObject).ToString() + savingId + ".json";
         }
 
         public static string GetSavingPathDirectory()
         {
-            return Application.persistentDataPath + "/";
+            return Application.persistentDataPath + "/data/";
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Edit/Clear Json Files", false, 266)]
+        [UnityEditor.MenuItem("Edit/Clear All Json Files", false, 266)]
         public static void ClearAllFiles()
         {
             string directoryPath = GetSavingPathDirectory();
