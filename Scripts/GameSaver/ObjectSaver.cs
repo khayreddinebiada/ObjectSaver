@@ -8,6 +8,17 @@ namespace Saver
     {
         public enum SaveType { JSON, PlayerPrefab }
 
+        #region Inits Objects
+        public static void InitObject<T>(T thisObject, SaveType saveType = SaveType.PlayerPrefab, string instanceID = "")
+        {
+            if (ObjectExist<T>(saveType, instanceID))
+                LoadObject(ref thisObject, saveType, instanceID);
+            else
+                SaveObject(thisObject, saveType, instanceID);
+        }
+        #endregion
+
+        #region Load Save Delete
         public static bool LoadObject<TObject>(ref TObject objectSaving, SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             string contents = (saveType == SaveType.JSON) ? File.ReadAllText(GetSavingPathFile<TObject>(savingId)) : PlayerPrefs.GetString(typeof(TObject).ToString() + savingId);
@@ -24,7 +35,6 @@ namespace Saver
 
             return false;
         }
-
         public static bool SaveObject<TObject>(TObject currentObject, SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             try
@@ -48,8 +58,7 @@ namespace Saver
 
             return false;
         }
-
-        public static bool DeleteObject<TObject>( SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
+        public static bool DeleteObject<TObject>(SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             if (!ObjectExist<TObject>(saveType, savingId))
                 return false;
@@ -75,7 +84,9 @@ namespace Saver
 
             return false;
         }
+        #endregion
 
+        #region Get Paths and Check exist
         public static bool ObjectExist<TObject>(SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             if (saveType == SaveType.JSON)
@@ -95,7 +106,6 @@ namespace Saver
 
             return false;
         }
-
         public static string GetSavingPathFile<TObject>(string savingId = "")
         {
             if (!Directory.Exists(Application.persistentDataPath + "/data/"))
@@ -103,11 +113,11 @@ namespace Saver
 
             return Application.persistentDataPath + "/data/" + typeof(TObject).ToString() + savingId + ".json";
         }
-
         public static string GetSavingPathDirectory()
         {
             return Application.persistentDataPath + "/data/";
         }
+        #endregion
 
 #if UNITY_EDITOR
         [UnityEditor.MenuItem("Edit/Clear All Json Files", false, 266)]
