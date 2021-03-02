@@ -7,40 +7,40 @@ namespace Saver
         #region Unique
         protected void InitObjectUnique<T>(T thisObject, ObjectSaver.SaveType saveType = ObjectSaver.SaveType.JSON)
         {
-            if (ObjectSaver.ObjectExist<T>("", saveType))
-                ObjectSaver.LoadObject(ref thisObject, "", saveType);
+            if (ObjectSaver.ObjectExist<T>(saveType))
+                ObjectSaver.LoadObject(ref thisObject, saveType);
             else
-                ObjectSaver.SaveObject(thisObject, "", saveType);
+                ObjectSaver.SaveObject(thisObject, saveType);
         }
 
         protected void SaveObjectUnique<T>(T thisObject, ObjectSaver.SaveType saveType = ObjectSaver.SaveType.JSON)
         {
-            ObjectSaver.SaveObject(thisObject, "", saveType);
+            ObjectSaver.SaveObject(thisObject, saveType);
         }
 
         protected void DeleteObjectUnique<T>(ObjectSaver.SaveType saveType = ObjectSaver.SaveType.JSON)
         {
-            ObjectSaver.DeleteObject<T>("", saveType);
+            ObjectSaver.DeleteObject<T>(saveType);
         }
         #endregion
 
         #region Multi
         protected void InitObject<T>(T thisObject, ObjectSaver.SaveType saveType = ObjectSaver.SaveType.JSON)
         {
-            if (ObjectSaver.ObjectExist<T>(GetInstanceID().ToString(), saveType))
-                ObjectSaver.LoadObject(ref thisObject, GetInstanceID().ToString(), saveType);
+            if (ObjectSaver.ObjectExist<T>(saveType, GetInstanceID().ToString()))
+                ObjectSaver.LoadObject(ref thisObject, saveType, GetInstanceID().ToString());
             else
-                ObjectSaver.SaveObject(thisObject, GetInstanceID().ToString(), saveType);
+                ObjectSaver.SaveObject(thisObject, saveType, GetInstanceID().ToString());
         }
 
         protected void SaveObject<T>(T thisObject, ObjectSaver.SaveType saveType = ObjectSaver.SaveType.JSON)
         {
-            ObjectSaver.SaveObject(thisObject, GetInstanceID().ToString(), saveType);
+            ObjectSaver.SaveObject(thisObject, saveType, GetInstanceID().ToString());
         }
 
         protected void DeleteObject<T>(ObjectSaver.SaveType saveType = ObjectSaver.SaveType.JSON)
         {
-            ObjectSaver.DeleteObject<T>(GetInstanceID().ToString(), saveType);
+            ObjectSaver.DeleteObject<T>(saveType, GetInstanceID().ToString());
         }
         #endregion
     }

@@ -6,12 +6,9 @@ namespace Saver
 {
     public class ObjectSaver
     {
-        public enum SaveType
-        {
-            JSON, PlayerPrefab
-        }
+        public enum SaveType { JSON, PlayerPrefab }
 
-        public static bool LoadObject<TObject>(ref TObject objectSaving, string savingId, SaveType saveType = SaveType.JSON)
+        public static bool LoadObject<TObject>(ref TObject objectSaving, SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             string contents = (saveType == SaveType.JSON) ? File.ReadAllText(GetSavingPathFile<TObject>(savingId)) : PlayerPrefs.GetString(typeof(TObject).ToString() + savingId);
 
@@ -28,7 +25,7 @@ namespace Saver
             return false;
         }
 
-        public static bool SaveObject<TObject>(TObject currentObject, string savingId, SaveType saveType = SaveType.JSON)
+        public static bool SaveObject<TObject>(TObject currentObject, SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             try
             {
@@ -52,9 +49,9 @@ namespace Saver
             return false;
         }
 
-        public static bool DeleteObject<TObject>(string savingId, SaveType saveType = SaveType.JSON)
+        public static bool DeleteObject<TObject>( SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
-            if (!ObjectExist<TObject>(savingId, saveType))
+            if (!ObjectExist<TObject>(saveType, savingId))
                 return false;
 
             try
@@ -79,7 +76,7 @@ namespace Saver
             return false;
         }
 
-        public static bool ObjectExist<TObject>(string savingId, SaveType saveType = SaveType.JSON)
+        public static bool ObjectExist<TObject>(SaveType saveType = SaveType.PlayerPrefab, string savingId = "")
         {
             if (saveType == SaveType.JSON)
             {
@@ -99,7 +96,7 @@ namespace Saver
             return false;
         }
 
-        public static string GetSavingPathFile<TObject>(string savingId)
+        public static string GetSavingPathFile<TObject>(string savingId = "")
         {
             if (!Directory.Exists(Application.persistentDataPath + "/data/"))
                 Directory.CreateDirectory(Application.persistentDataPath + "/data/");
