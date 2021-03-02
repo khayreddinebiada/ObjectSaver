@@ -117,6 +117,14 @@ namespace Saver
         {
             return Application.persistentDataPath + "/data/";
         }
+        public static void OnModifyValue<T>(ref T lastValue, T newValue, SaveType saveType = SaveType.PlayerPrefab, string instanceID = "")
+        {
+            if (!lastValue.Equals(newValue))
+            {
+                lastValue = newValue;
+                SaveObject(newValue, saveType, instanceID);
+            }
+        }
         #endregion
 
 #if UNITY_EDITOR
